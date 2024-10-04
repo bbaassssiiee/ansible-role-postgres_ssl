@@ -31,6 +31,7 @@ postgres_allowed_hosts:
 - hosts: postgres_servers
   collections:
     - community.postgresql
+    - community.crypto
     - community.general
   roles:
     - postgres
