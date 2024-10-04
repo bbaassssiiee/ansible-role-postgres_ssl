@@ -28,7 +28,7 @@ postgres_allowed_hosts:
 ## Example Playbook
 ```
 ---
-- hosts: postgres_servers
+- hosts: database
   collections:
     - community.postgresql
     - community.crypto
