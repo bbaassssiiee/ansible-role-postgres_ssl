@@ -14,7 +14,7 @@ database:
     name: postgres
     owner: postgres
     username: postgres
-    password: "{{ lookup('env', 'DEV_PASS') }}"
+    password: "{{ lookup('env', 'DB_PASS') }}"
     enabled: true
 ```
 
