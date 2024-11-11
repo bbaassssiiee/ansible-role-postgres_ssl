@@ -32,7 +32,7 @@
 - name: Enable PostgreSQL module
   become: true
   ansible.builtin.dnf:
-    name: '@postgresql:15'
+    name: "@postgresql:{{ postgres_version }}"
     state: present
   when:
     - ansible_os_family == 'RedHat'
