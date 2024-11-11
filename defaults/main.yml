@@ -1,5 +1,6 @@
 ---
 # Default version of Postgres server to install.
+# Ubuntu 22.04 has 14, RHEL8 has 13, 15, 16
 postgres_version: 14
 
 # Default listen_addresses of Postgres server
