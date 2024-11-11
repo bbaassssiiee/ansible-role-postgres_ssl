@@ -1,6 +1,6 @@
 ---
 # Default version of Postgres server to install.
-postgres_version: 15
+postgres_version: 14
 
 # Default listen_addresses of Postgres server
 postgres_listen_addresses: '*'
