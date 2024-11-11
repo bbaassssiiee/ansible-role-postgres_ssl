@@ -42,12 +42,6 @@
   environment:
     LC_ALL: "{{ postgres_locale }}"
 
-- name: Check FIPS status
-  ansible.builtin.command: cat /proc/sys/crypto/fips_enabled
-  register: _fips_enabled
-  ignore_errors: true
-  changed_when: false
-
 - name: Create private key (RSA, 4096 bits)
   community.crypto.openssl_privatekey:
     path: "{{ postgresql_data_dir }}/server.key"
