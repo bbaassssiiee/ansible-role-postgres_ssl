@@ -1,27 +1,28 @@
 ---
-- name: Install prerequisite packages
+- name: Manage prerequisite packages
   become: true
   ansible.builtin.apt:
     name: ['acl', 'apt-transport-https', 'locales', 'python3-psycopg2']
-    state: present
+    state: "{{ desired_state }}"
     update_cache: true
 
 - name: Ensure UTF-8 locale exists
+  when: desired_state == 'present'
   become: true
   community.general.locale_gen:
     name: en_US.UTF-8
     state: present
 
-- name: Install postgres packages
+- name: Manage postgres packages
   become: true
   ansible.builtin.apt:
     name:
       - postgresql
       - postgresql-contrib
-    state: present
+    state: "{{ desired_state }}"
     update_cache: true
     cache_valid_time: 3600
-  register: download_postgresql
-  until: download_postgresql is success
+  register: manage_postgresql
+  until: manage_postgresql is success
   retries: 3
   delay: 3
