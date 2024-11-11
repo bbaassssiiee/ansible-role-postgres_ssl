@@ -1,18 +1,4 @@
 ---
-- name: Assert database username and password are defined
-  ansible.builtin.assert:
-    that:
-      - curr_user.username is defined
-      - curr_user.password is defined
-  loop: "{{ database | dict2items | map(attribute='value') | list }}"
-  loop_control:
-    loop_var: curr_user
-  when: curr_user.enabled | bool
-  no_log: true  # secret passwords
-
-- name: Define OS-specific variables
-  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
-
 - name: Install prerequisite packages
   ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
@@ -33,14 +19,46 @@
     state: directory
     mode: '0700'
 
-- name: Initialize PostgreSQL database cluster
-  become: true
-  become_user: postgres
-  ansible.builtin.command: "{{ postgresql_bin_path }}/initdb -D {{ postgresql_data_dir }}"
-  args:
-    creates: "{{ postgresql_data_dir }}/PG_VERSION"
-  environment:
-    LC_ALL: "{{ postgres_locale }}"
+- name: Get passwd entry for postgres
+  ansible.builtin.getent:
+    database: passwd
+    key: postgres
+
+- name: Set home_dir and shell
+  ansible.builtin.set_fact:
+    postgres_home_dir: "{{ getent_passwd['postgres'][4] }}"
+
+- name: Check if PostgreSQL is initialized
+  ansible.builtin.stat:
+    path: "{{ postgresql_data_dir }}/PG_VERSION"
+  register: postgres_initdb_file
+
+- name: Initialize PostgreSQL database
+  when: not postgres_initdb_file.stat.exists
+  block:
+    - name: Create pwfile
+      ansible.builtin.copy:
+        dest: "{{ postgres_home_dir }}/pwfile"
+        content: "{{ lookup('env', 'DB_PASS') }}"
+        owner: postgres
+        group: postgres
+        mode: '0600'
+
+    - name: Initialize Database
+      become: true
+      become_user: postgres
+      ansible.builtin.command:
+        cmd: "{{ postgresql_bin_path }}/initdb -D {{ postgresql_data_dir }} -A password --pwfile {{ postgres_home_dir }}/pwfile"
+      args:
+        creates: "{{ postgresql_data_dir }}/PG_VERSION"
+      environment:
+        LC_ALL: "{{ postgres_locale }}"
+
+  always:
+    - name: Remove pwfile
+      ansible.builtin.file:
+        path: "{{ postgres_home_dir }}/pwfile"
+        state: absent
 
 - name: Create private key (RSA, 4096 bits)
   community.crypto.openssl_privatekey:
@@ -117,6 +135,7 @@
   become: true
   become_user: postgres
   community.postgresql.postgresql_user:
+    login_password: "{{ lookup('env', 'DB_PASS') }}"
     name: "{{ curr_user.username }}"
     password: "{{ curr_user.password }}"
     conn_limit: "-1"
@@ -124,12 +143,13 @@
   loop_control:
     loop_var: curr_user
   when: curr_user.enabled | bool
-  no_log: true  # secret passwords
+  no_log: "{{ not debug }}"
 
 - name: Create database
   become: true
   become_user: postgres
   community.postgresql.postgresql_db:
+    login_password: "{{ lookup('env', 'DB_PASS') }}"
     name: "{{ curr_db.name }}"
     owner: "{{ curr_db.owner }}"
     encoding: UTF-8
@@ -140,12 +160,13 @@
   loop_control:
     loop_var: curr_db
   when: curr_db.enabled | bool
-  no_log: "{{ secure | default(true) }}"  # secret passwords
+  no_log: "{{ not debug }}"
 
 - name: Grant privs on db
   become: true
   become_user: postgres
   community.postgresql.postgresql_privs:
+    login_password: "{{ lookup('env', 'DB_PASS') }}"
     database: "{{ curr_db.name }}"
     role: "{{ curr_db.owner }}"
     state: present
@@ -155,4 +176,4 @@
   loop_control:
     loop_var: curr_db
   when: curr_db.enabled | bool
-  no_log: "{{ secure | default(true) }}"  # secret passwords
+  no_log: "{{ not debug }}"

@@ -1,4 +1,19 @@
 ---
-- name: Install postgres
-  ansible.builtin.include_tasks: "install.yml"
+
+- name: Define OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Assert database username and password are defined
+  ansible.builtin.assert:
+    that:
+      - curr_user.username is defined
+      - curr_user.password is defined
+  loop: "{{ database | dict2items | map(attribute='value') | list }}"
+  loop_control:
+    loop_var: curr_user
+  when: curr_user.enabled | bool
+  no_log: "{{ not debug }}"
+
+- name: "Converge state - {{ desired_state }}"
   when: postgres_enabled | bool
+  ansible.builtin.include_tasks: "{{ desired_state }}.yml"
