@@ -54,11 +54,10 @@
       environment:
         LC_ALL: "{{ postgres_locale }}"
 
-  always:
-    - name: Remove pwfile
-      ansible.builtin.file:
-        path: "{{ postgres_home_dir }}/pwfile"
-        state: absent
+- name: Ensure pwfile is absent
+  ansible.builtin.file:
+    path: "{{ postgres_home_dir }}/pwfile"
+    state: absent
 
 - name: Create private key (RSA, 4096 bits)
   community.crypto.openssl_privatekey:
