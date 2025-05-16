@@ -1,4 +1,4 @@
-# postgres
+# postgres_ssl
 The postgres role will install Postgresql software and configure databases and users.
 PostgreSQL will run with SSL.
 
