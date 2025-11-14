@@ -13,6 +13,6 @@ host    all             all             ::1/128                 password
 ## remote connections IPv4
 {% if postgres_allowed_hosts and postgres_allowed_hosts is iterable -%}
 {%- for host in postgres_allowed_hosts %}
-{{ host.type | default('host') }}         {{ host.database | default('all') }}        {{ host.user | default('all') }}             {{ host.address | default('samenet') }}            {{ host.method | default('password') }}
+{{ host.type | default('hostssl') }}         {{ host.database | default('all') }}        {{ host.user | default('all') }}             {{ host.address | default('samenet') }}            {{ host.method | default('password') }}
 {% endfor %}
 {% endif %}
