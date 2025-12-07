@@ -2,7 +2,7 @@
 - name: Install prerequisite packages
   when: desired_state == 'present'
   become: true
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name:
       - acl
       - sudo
@@ -12,7 +12,7 @@
 
 - name: Manage python3 packages
   become: true
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name:
       - python3-psycopg2
       - python3-cryptography
@@ -42,7 +42,7 @@
 
 - name: Manage PostgreSQL packages
   become: true
-  ansible.builtin.yum:
+  ansible.builtin.dnf:
     name:
       - postgresql-server
       - postgresql-contrib
