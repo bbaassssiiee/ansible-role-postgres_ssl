@@ -7,8 +7,6 @@
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 ## localhost connections through Unix port (user name), IPv4, IPv6 (MD5 pw).
 local   all             all                                     password
-host    all             all             127.0.0.1/32            password
-host    all             all             ::1/128                 password
 
 ## remote connections IPv4
 {% if postgres_allowed_hosts and postgres_allowed_hosts is iterable -%}
