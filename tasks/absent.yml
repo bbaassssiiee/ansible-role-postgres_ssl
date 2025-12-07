@@ -33,6 +33,7 @@
     - curr_db.enabled | bool
     - curr_db.name != 'postgres'
   no_log: "{{ not debug }}"
+  failed_when: false  # we're deleting
 
 - name: Stop PostgreSQL server
   ansible.builtin.systemd:
@@ -43,3 +44,8 @@
 - name: Remove prerequisite packages
   ansible.builtin.include_tasks: "{{ ansible_os_family }}.yml"
 
+- name: Remove data
+  when: debug | bool
+  ansible.builtin.file:
+    path: /var/lib/pgsql/data
+    state: absent
