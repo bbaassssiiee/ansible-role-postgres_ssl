@@ -54,11 +54,10 @@
       environment:
         LC_ALL: "{{ postgres_locale }}"
 
-  always:
-    - name: Remove pwfile
-      ansible.builtin.file:
-        path: "{{ postgres_home_dir }}/pwfile"
-        state: absent
+- name: Remove pwfile
+  ansible.builtin.file:
+    path: "{{ postgres_home_dir }}/pwfile"
+    state: absent
 
 - name: Create private key (RSA, 4096 bits)
   community.crypto.openssl_privatekey:
@@ -100,7 +99,7 @@
     - postgresql.conf
   notify: Restart postgresql
 
-- name: Setup postgres systemd overide directory
+- name: Setup postgres systemd override directory
   become: true
   ansible.builtin.file:
     path: "/etc/systemd/system/postgresql-{{ postgres_version }}.service.d"
@@ -109,7 +108,7 @@
     group: root
     mode: '0755'
 
-- name: Setup postgres systemd overides
+- name: Setup postgres systemd overrides
   become: true
   ansible.builtin.template:
     src: override.conf.j2
