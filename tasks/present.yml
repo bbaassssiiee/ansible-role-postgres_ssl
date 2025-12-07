@@ -39,7 +39,7 @@
     - name: Create pwfile
       ansible.builtin.copy:
         dest: "{{ postgres_home_dir }}/pwfile"
-        content: "{{ lookup('env', 'DB_PASS') }}"
+        content: "{{ check_db_pass }}"
         owner: postgres
         group: postgres
         mode: '0600'
@@ -134,7 +134,7 @@
   become: true
   become_user: postgres
   community.postgresql.postgresql_user:
-    login_password: "{{ lookup('env', 'DB_PASS') }}"
+    login_password: "{{ check_db_pass }}"
     name: "{{ curr_user.username }}"
     password: "{{ curr_user.password }}"
     conn_limit: "-1"
@@ -148,7 +148,7 @@
   become: true
   become_user: postgres
   community.postgresql.postgresql_db:
-    login_password: "{{ lookup('env', 'DB_PASS') }}"
+    login_password: "{{ check_db_pass }}"
     name: "{{ curr_db.name }}"
     owner: "{{ curr_db.owner }}"
     encoding: UTF-8
@@ -165,7 +165,7 @@
   become: true
   become_user: postgres
   community.postgresql.postgresql_privs:
-    login_password: "{{ lookup('env', 'DB_PASS') }}"
+    login_password: "{{ check_db_pass }}"
     database: "{{ curr_db.name }}"
     role: "{{ curr_db.owner }}"
     state: present
