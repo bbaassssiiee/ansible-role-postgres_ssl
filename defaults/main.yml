@@ -24,7 +24,7 @@ postgres_allowed_hosts:
     type: "host",
     database: "all",
     user: "all",
-    address: "127.0.0.1/0",
+    address: "127.0.0.1/32",
     method: "password"
   }
   - {
